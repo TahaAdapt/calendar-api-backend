@@ -6,9 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// TEMP: Replace with a real OAuth token or service account logic later
-const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
-
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN; // Secure token access
 
 app.post('/create-calendar-event', async (req, res) => {
   const {
@@ -59,7 +57,10 @@ app.post('/create-calendar-event', async (req, res) => {
     });
   } catch (err) {
     console.error('Google API Error:', err.response?.data || err.message);
-    res.status(500).json({ error: 'Failed to create calendar event' });
+    res.status(500).json({
+      error: 'Failed to create calendar event',
+      details: err.response?.data || err.message
+    });
   }
 });
 
