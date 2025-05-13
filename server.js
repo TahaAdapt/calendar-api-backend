@@ -1,12 +1,25 @@
 const express = require('express');
 const { google } = require('googleapis');
 const cors = require('cors');
+const fs = require('fs');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const ACCESS_TOKEN = process.env.ACCESS_TOKEN; // Secure token access
+// 🔐 Write service account key from base64 env variable (Render-safe)
+if (process.env.GOOGLE_SERVICE_ACCOUNT_B64) {
+  fs.writeFileSync(
+    'service-account.json',
+    Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_B64, 'base64')
+  );
+}
+
+// 🔑 Set up Google Auth using service account
+const auth = new google.auth.GoogleAuth({
+  keyFile: 'service-account.json',
+  scopes: ['https://www.googleapis.com/auth/calendar.events'],
+});
 
 app.post('/create-calendar-event', async (req, res) => {
   const {
@@ -20,10 +33,8 @@ app.post('/create-calendar-event', async (req, res) => {
   } = req.body;
 
   try {
-    const auth = new google.auth.OAuth2();
-    auth.setCredentials({ access_token: ACCESS_TOKEN });
-
-    const calendar = google.calendar({ version: 'v3', auth });
+    const authClient = await auth.getClient();
+    const calendar = google.calendar({ version: 'v3', auth: authClient });
 
     const response = await calendar.events.insert({
       calendarId,
