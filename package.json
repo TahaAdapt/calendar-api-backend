@@ -1,7 +1,7 @@
 {
   "name": "calendar-api-backend",
   "version": "1.0.0",
-  "description": "Vapi custom tool backend to create Google Calendar events",
+  "description": "Backend for creating Google Calendar events with Meet link via service account",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
